@@ -1,0 +1,72 @@
+version: '3.3'
+
+services:
+  proxy:
+    image: gblin/vplpyproxy
+    ports:
+      - target: 443
+        published: ${PROXY_PORT}
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source : /vplbdx/ssl
+        target : /vplbdx/ssl
+        read_only : true
+    depends_on:
+      - vplbdx
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  vplbdx:
+    image: gblin/vplpyjail
+    environment:
+      - PROXY_MOODLE_PATH=${PROXY_MOODLE_PATH}
+      - PROXY_PORT=${PROXY_MOODLE_PORT}
+      - MAXTIME=${MAXTIME}
+      - MAXFILESIZE=${MAXFILESIZE}
+      - MAXMEMORY=${MAXMEMORY}
+      - MAXPROCESSES=${MAXPROCESSES}
+    volumes:
+      - type: bind
+        source : /vplbdx/ssl
+        target : /vplbdx/ssl
+        read_only : true
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker
+      - /dev/kvm:/dev/kvm
+      - /dev/dri:/dev/dri
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    deploy:
+      replicas: ${NB_REPLICAS}
+# If you want to test on a dockerized version of moodle; uncomment the following lines
+# you will have to install vpl plugin into moodle. Default admin account is 'user' with 'bitnami' as password.
+# Note that both the mariadb and moodle configuration and data will be "persitent" in the "/tmp/moodle/persistence" directory.
+#   mariadb:
+#    image: 'bitnami/mariadb:latest'
+#    environment:
+#      - ALLOW_EMPTY_PASSWORD=yes
+#      - MARIADB_USER=bn_moodle
+#      - MARIADB_DATABASE=bitnami_moodle
+#    volumes:
+#      - '/tmp/moodle/persistence:/bitnami'
+#  moodle:
+#    image: 'bitnami/moodle:latest'
+#    environment:
+#      - MOODLE_DATABASE_USER=bn_moodle
+#      - MOODLE_DATABASE_NAME=bitnami_moodle
+#      - ALLOW_EMPTY_PASSWORD=yes
+#    ports:
+#          - target: 443
+#            published: 443
+#            protocol: tcp
+#            mode: host
+#    volumes:
+#            - '/tmp/moodle/persistence:/bitnami'
+#    depends_on:
+#      - mariadb
+networks:
+  default:
+    external:
+      name: vplpynet

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+docker build -t ${IMAGE_NAME} \
+	--build-arg=YOUR_GIT_URL=$YOUR_GIT_URL \
+	--build-arg=YOUR_SVN_URL=$YOUR_SVN_URL \
+	--build-arg=YOUR_TEACHER_GIT_PASSWORD=$YOUR_TEACHER_GIT_PASSWORD \
+	--build-arg=YOUR_TEACHER_GIT_USER=$YOUR_TEACHER_GIT_USER \
+	.

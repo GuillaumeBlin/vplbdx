@@ -1,0 +1,7 @@
+setuptools
+websockets
+aiohttp
+dicttoxml
+docker==4.0.1
+ftfy
+aiofile

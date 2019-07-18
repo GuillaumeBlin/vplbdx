@@ -1,0 +1,16 @@
+#!/bin/bash
+# If you setup a "teacher" git account in order to access the source files of your vpl activity
+# You can create a new command that will be used on the jail when executing teacher level files to retrieve 
+# everything you need without putting your git information in each activity. Student will still be able to use git normally.
+set +o history
+args="$@"
+orig="https://$YOUR_GIT_URL"
+repl="https://$YOUR_TEACHER_GIT_USER:$YOUR_TEACHER_GIT_PASSWORD@$YOUR_GIT_URL"
+caller="`ps --no-headers -o command $PPID | cut -f2 -d ' '`"
+caller="`basename $caller`"
+if [ "${caller:0:4}" == "vpl_" ]; then 
+	/usr/bin/gitorig `echo "$args" | sed "s%$orig%$repl%"`
+else
+	/usr/bin/gitorig `echo "$args"`
+fi
+set -o history
