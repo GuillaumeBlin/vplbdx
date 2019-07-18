@@ -158,7 +158,7 @@ DOCKER=gblin/minivpljava
 
 For sake of performance, a part of the jail service should be embedded into the corresponding image - namely, a websocket proxy able to pipe the moodle VPL `term.js` client to the shell of the docker and a websocket proxy handling noVNC communications.
 
-We built a minimal docker image, based on [bitami/minideb:stretch](https://hub.docker.com/r/bitnami/minideb/), called [gblin/minivpl](https://hub.docker.com/r/gblin/minivpl) that embeds [wss-shell](docker-images/minivpl/wss-shell/) (a standalone and secured version of [websocket-shell-service](https://www.npmjs.com/package/websocket-shell-service) project based on [Node.js](https://nodejs.org/)), [websockify](https://github.com/novnc/websockify) proxying a [tightvncserver](https://www.tightvnc.com/). 
+We built a minimal docker image, based on [bitami/minideb:stretch](https://hub.docker.com/r/bitnami/minideb/), called [gblin/minivpl](https://hub.docker.com/r/gblin/minivpl) that embeds [wss-shell](misc/docker-images/minivpl/wss-shell/) (a standalone and secured version of [websocket-shell-service](https://www.npmjs.com/package/websocket-shell-service) project based on [Node.js](https://nodejs.org/)), [websockify](https://github.com/novnc/websockify) proxying a [tightvncserver](https://www.tightvnc.com/). 
 
 The simple manner is thus to build your own docker image inheriting from `gblin/minivpl` one. 
 
@@ -172,7 +172,7 @@ RUN install_packages locales-all libva-glx1
 
 ## The Frank Sinatra way
 
-If you want to do it "your way", you need to design a docker image that will have at least two bash scripts `/vplbdx/start-vncserver.sh` and `/vplbdx/vpl_terminal_launcher.sh` that will be in charge respectively of handling `noVNC` and `term.js` requests using websockets. A nice starting point would be to study the `gblin/minivpl` source files provided in [docker-images/minivpl](docker-images/minivpl/) directory for your information. 
+If you want to do it "your way", you need to design a docker image that will have at least two bash scripts `/vplbdx/start-vncserver.sh` and `/vplbdx/vpl_terminal_launcher.sh` that will be in charge respectively of handling `noVNC` and `term.js` requests using websockets. A nice starting point would be to study the `gblin/minivpl` source files provided in [misc/docker-images/minivpl](misc/docker-images/minivpl/) directory for your information. 
 
 # Troubleshooting
 
