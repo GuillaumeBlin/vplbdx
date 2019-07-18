@@ -58,10 +58,10 @@ Everything should be up and running with the current host as **manager** and **w
 
 
 # Interrupting the service
-Just run the **stopservices.sh** script passing as arguments workers hostnames that will make the all nodes leaving the swarm, remove the overlay network and stop all services. 
+Just run the **stopservices.sh** script on the **manager** that will make all nodes leaving the swarm, remove the overlay network and stop all services. 
 
 ```shell
-    ./stopservices.sh worker1 worker2
+    ./stopservices.sh
 ````
 
 # Pluging the VPLBDX jail system to VPL 
