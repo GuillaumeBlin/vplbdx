@@ -25,4 +25,4 @@ RUN cd /tmp && \
     unzip pmd-bin-*.zip && \
     rm pmd-bin-*.zip && \
     mv pmd-bin-* /usr/bin/pmd-bin 
-
+RUN pip3 install scspell
