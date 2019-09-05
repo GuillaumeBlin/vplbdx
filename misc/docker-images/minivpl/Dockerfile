@@ -35,7 +35,7 @@ RUN echo "minivpl" > /etc/hostname
 RUN echo "127.0.0.1	localhost" > /etc/hosts
 RUN echo "127.0.0.1	minivpl" >> /etc/hosts
 RUN mkdir -p /vplbdx/.ssl
-COPY logo.jpg /usr/share/images/logo.jpg
+COPY logo.jpg /vplbdx/logo.jpg
 EXPOSE 5901
 EXPOSE 8093
 ENV USER root

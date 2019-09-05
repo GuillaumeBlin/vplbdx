@@ -66,6 +66,58 @@ services:
 #            - '/tmp/moodle/persistence:/bitnami'
 #    depends_on:
 #      - mariadb
+  sharelatex:
+    restart: always
+    image: gblin/sharelatex    
+    container_name: sharelatex
+    depends_on:
+      - mongo
+      - redis
+    privileged: true
+    ports:
+      - target: 80
+        published: 8087
+        protocol: tcp
+        mode: host
+    links:
+      - mongo
+      - redis
+    volumes:
+      - ./sharelatex_data:/var/lib/sharelatex
+      - /var/run/docker.sock:/var/run/docker.sock
+            #- /var/clsi/compiles:/var/www/sharelatex/clsi/compiles
+    environment:
+      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
+      SHARELATEX_REDIS_HOST: redis
+      SHARELATEX_APP_NAME: Our ShareLaTeX
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  mongo:
+    restart: always
+    image: mongo
+    container_name: mongo
+    expose:
+      - 27017
+    volumes:
+      - ./mongo_data:/data/db
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  redis:
+    restart: always
+    image: redis
+    container_name: redis
+    expose:
+      - 6379
+    volumes:
+       - ./redis_data:/data
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
 networks:
   default:
     external:
