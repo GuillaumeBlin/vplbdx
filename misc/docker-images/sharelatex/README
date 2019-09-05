@@ -1,0 +1,5 @@
+echo "vplpouetpouet" | docker login --username "gblin" --password-stdin
+docker build -t gblin/sharelatex .
+docker push gblin/sharelatex
+docker-compose up -d
+docker exec sharelatex /bin/bash -c "cd /var/www/sharelatex; grunt user:create-admin --email vpl@pouet.fr"
