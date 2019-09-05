@@ -27,7 +27,7 @@ export USER=root
 	fi
 	chmod 0755 /vplbdx/.vnc/xstartup
 	export DISPLAY=:1
-	display -window root /usr/share/images/logo.jpg
+	display -window root /vplbdx/logo.jpg
 	vncserver :1 -geometry  $VPL_XGEOMETRY -depth 16 -nevershared  -name vpl &
 } &> VNC.log
 
