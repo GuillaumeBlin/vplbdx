@@ -6,14 +6,7 @@ xsetroot -solid MidnightBlue
 export XKL_XMODMAP_DISABLE=1
 [ -x vncconfig ] && vncconfig -iconic 2>/dev/null &
 fluxbox &
+export DISPLAY=:1
+display -window root /vplbdx/logo.jpg
 chmod +x /vplbdx/vpl_wexecution
 /vplbdx/vpl_wexecution &> .std_output
-if [ -f .std_output ] ; then
-	if [ "$(command -v xterm)" != "" ] ; then
-		xterm -T "std output" -bg white -fg red -e 'tail -f .std_output  2> /dev/null' 2> /dev/null
-	else
-		if [ "$(command -v x-terminal-emulator)" != "" ] ; then
-			x-terminal-emulator -e 'tail -f .std_output  2> /dev/null' 2> /dev/null
-		fi
-	fi
-fi
