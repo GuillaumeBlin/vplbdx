@@ -4,7 +4,6 @@
 # copyright 2019 Guillaume Blin - Corentin Abel Mercier
 # license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 
-
 echo "starting VNC server ..."
 export USER=root
 {
