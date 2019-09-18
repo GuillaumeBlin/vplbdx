@@ -96,16 +96,17 @@ async def push_info_to_container(root):
         if m:
             dockerimage = m.group(1)
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
-    imageinfo=dockerimage.split("/")
-    repo=imageinfo[0]
-    if len(imageinfo)==1:
-        name=imageinfo[0]
-    else:
-        name=imageinfo[1]
-    searchres=clientAPI.search(name)
-    if len([item["name"] for item in searchres if item["name"] == dockerimage]):
-        clientAPI.pull(dockerimage)
-    else:
+    #imageinfo=dockerimage.split("/")
+    #repo=imageinfo[0]
+    #if len(imageinfo)==1:
+    #    name=imageinfo[0]
+    #else:
+    #    name=imageinfo[1]
+    #searchres=clientAPI.search(name)
+    #if len([item["name"] for item in searchres if item["name"] == dockerimage]):
+    try:
+      clientAPI.pull(dockerimage)
+    except Exception as e:
         logging.error(dockerimage+" could not been found on docker hub")
         return ("","")
     # recuperation de DOCKER
