@@ -90,20 +90,17 @@ async def push_info_to_container(root):
 
     config = get_members_and_values(root)
     dockerimage = "gblin/minivpl"
+    dockeruser = "root"
     dockercfg = [item[1] for item in config["files"] if item[0] == 'vplbdx.cfg']
     if len(dockercfg) == 1:
         m = re.search("DOCKER=(.*)", ""+dockercfg[0])
         if m:
             dockerimage = m.group(1)
+        m = re.search("USER=(.*)", ""+dockercfg[0])
+        if m:
+            dockeruser = m.group(1)
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
-    #imageinfo=dockerimage.split("/")
-    #repo=imageinfo[0]
-    #if len(imageinfo)==1:
-    #    name=imageinfo[0]
-    #else:
-    #    name=imageinfo[1]
-    #searchres=clientAPI.search(name)
-    #if len([item["name"] for item in searchres if item["name"] == dockerimage]):
+    logging.debug(f"DOCKER USER : {dockeruser}")    
     try:
       clientAPI.pull(dockerimage)
     except Exception as e:
@@ -116,7 +113,7 @@ async def push_info_to_container(root):
     hc = {"mem_limit": str(config["maxmemory"]), "pids_limit": (config["maxprocesses"] + 2), "auto_remove": True}
     logging.debug(f"[HC] > {hc}")
     container_config = clientAPI.create_host_config(**hc)
-    p = clientAPI.create_container(dockerimage, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx")
+    p = clientAPI.create_container(dockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx")
     clientAPI.connect_container_to_network(p, "vplpynet")
     clientAPI.disconnect_container_from_network(p, "bridge")
     clientAPI.start(p)
