@@ -184,10 +184,10 @@ async def handle_post(request):
         if admin_ticket != None:          
             admin_ticket = admin_ticket.split('/')[0]
             pid = crypt(admin_ticket, "ADMINTICKET", True)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; cat .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
             compile_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_exec.out; cat .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_exec.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
             execution_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
             clientAPI.stop(pid, 0)

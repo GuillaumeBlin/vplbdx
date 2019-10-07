@@ -179,7 +179,7 @@ class ClientHandler():
                 elif self.execute == "vpl_run.sh" or self.execute == "vpl_debug.sh":
                     self.last_exec = self.clientAPI.exec_create(self.pid, "/bin/bash -c \"if [ -f vpl_execution ]; then echo -n 'run:terminal'; else if [ -f vpl_wexecution ]; then echo -n 'run:vnc:"+self.vnc_password+"'; else echo -n 'close:'; fi fi\"", workdir="/vplbdx")
                     next_command = self.clientAPI.exec_start(self.last_exec["Id"]).decode("utf8")
-                    last_exec = self.clientAPI.exec_create(self.pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; cat .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
+                    last_exec = self.clientAPI.exec_create(self.pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
                     compile_out = self.clientAPI.exec_start(last_exec["Id"])
                     if compile_out:
                         await self.ws.send("compilation:"+compile_out.decode('utf8'))
