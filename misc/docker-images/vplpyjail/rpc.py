@@ -10,7 +10,7 @@ import os
 import xml.etree.ElementTree as ET
 
 from ftfy import fix_text
-
+from ftfy import fix_encoding
 
 def crypt(msg, key, decode=False):
     alpha = '0123456789abcdefghijklmnopqrstuvwxyz'

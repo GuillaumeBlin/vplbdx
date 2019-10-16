@@ -191,7 +191,7 @@ async def handle_post(request):
             execution_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
             clientAPI.stop(pid, 0)
-            xml = getResultResponse(html.escape(compile_out.decode('utf8').replace("\\n", "&#10;")), html.escape(execution_out.decode('utf8').replace("\\n", "&#10;")), 1, 0)
+            xml = getResultResponse(html.escape(fix_text(compile_out.decode('utf8','ignore'))).replace("\\n", "&#10;"), html.escape(fix_text(execution_out.decode('utf8','ignore'))).replace("\\n", "&#10;"), 1, 0)
             logging.debug("----------[RESULT XML]----------\n")
             logging.debug(xml)
             return web.Response(text=xml, content_type='text/xml', headers={
