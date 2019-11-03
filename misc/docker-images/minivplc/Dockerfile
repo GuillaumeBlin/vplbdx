@@ -26,4 +26,4 @@ RUN cd /tmp && \
     rm pmd-bin-*.zip && \
     mv pmd-bin-* /usr/bin/pmd-bin 
 RUN install_packages imagemagick 
-#RUN pip3 install scspell BUG
+RUN pip3 install scspell3k
