@@ -27,3 +27,4 @@ RUN cd /tmp && \
     mv pmd-bin-* /usr/bin/pmd-bin 
 RUN install_packages imagemagick 
 RUN pip3 install scspell3k
+RUN install_packages cppcheck
