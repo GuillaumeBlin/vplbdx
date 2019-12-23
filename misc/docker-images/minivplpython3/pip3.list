@@ -5,3 +5,5 @@ tk
 requests
 scspell3k
 pygame
+coverage
+pylint
