@@ -8,3 +8,4 @@ rm /usr/bin/mygit /usr/bin/git /usr/bin/mysvn /usr/bin/svn
 mv /usr/bin/gitorig /usr/bin/git
 mv /usr/bin/svnorig /usr/bin/svn
 rm -rf /vplbdx/.Xauthority /vplbdx/.vnc start-vncserver.sh vpl_terminal_launcher.sh  logo.jpg
+rm -- $0
