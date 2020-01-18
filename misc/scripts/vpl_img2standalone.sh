@@ -8,3 +8,4 @@ rm /usr/bin/mygit /usr/bin/git /usr/bin/mysvn /usr/bin/svn
 mv /usr/bin/gitorig /usr/bin/git
 mv /usr/bin/svnorig /usr/bin/svn
 rm -f /vplbdx/*
+rm -- "$0" #remove the script from the docker container
