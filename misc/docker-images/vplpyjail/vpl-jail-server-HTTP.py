@@ -110,10 +110,11 @@ async def push_info_to_container(root):
     # verification que l'image existe sur le serveur sinon docker pull
     logging.debug(f"CONFIG = {config}")
     # add 2 to maxprocesses (1 for the sleep process and another to allow the client to exceed the limit as you can have as much processes as the limit)
-    hc = {"mem_limit": str(config["maxmemory"]), "pids_limit": (config["maxprocesses"] + 2), "auto_remove": True}
+    hc = {"mem_limit": str(config["maxmemory"]), "pids_limit": (config["maxprocesses"] + 2), "auto_remove": True,
+         "privileged":True, "binds":['/dev/kvm:/dev/kvm','/dev/net/tun:/dev/net/tun']}
     logging.debug(f"[HC] > {hc}")
     container_config = clientAPI.create_host_config(**hc)
-    p = clientAPI.create_container(dockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx")
+    p = clientAPI.create_container(dockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
     clientAPI.connect_container_to_network(p, "vplpynet")
     clientAPI.disconnect_container_from_network(p, "bridge")
     clientAPI.start(p)
