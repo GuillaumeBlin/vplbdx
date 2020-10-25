@@ -13,9 +13,11 @@ Since VPLBDX relies only on docker, it should only requires a system able to run
 
 In order to take into account different use case, we designed a solution based on [docker swarm](https://docs.docker.com/engine/swarm/) that deploys jails as services in order to be able to scale up to your needs.
 
-Roughly, in a docker swarm, you may use as much (or as few) machine that you want in a transparent manner. One of them will be the swarm manager and the others will be workers. Services will be deployed on all the machine of the swarm and will be able to communicate through an  overlay network. 
+Roughly, in a docker swarm, you may use as much (or as few) machine that you want in a transparent manner. One of them will be the swarm manager and the others will be workers. Services will be deployed on all the machine of the swarm and will be able to communicate through an overlay network. 
 
 The proxy will be in charge of receiving VPL requests and transfering - using load balancing - the request to one of the vpljail service running on the swarm. Including a specific execution file called **vplbdx.conf** in the VPL activity (details provided afterwards), the corresponding assigned vpljail service will pull - if needed - the requested docker image from [docker hub](https://hub.docker.com/) on the swarm and will execute the VPL executions files into this last ; allowing fine tuning of each VPL activity. 
+
+:warning: **Updates regarding new Docker Hub policy** - In order to take into account the new docker hub policy, we added a local docker images registry to our architecture that will store locally the images used by our vpl activities and limit the pulling from docker hub.
 
 ![Overall architecture](https://github.com/GuillaumeBlin/vplbdx/raw/master/misc/img/VPLBDX.png)
 
@@ -34,12 +36,17 @@ On **manager**, get the repository content:
 Edit the **.env** file at the root of the project 
 
 ```shell
-    PROXY_PORT=8090       #Socket port number to listen for secure connections (https: and wss:) for the proxy
-    MAXTIME=600           #Maximum time for a request in second
-    MAXFILESIZE=64000000  #Maximum file size in bytes
-    MAXMEMORY=2000000     #Maximum memory size in bytes
-    MAXPROCESSES=500      #Maximum number of processes
-    MAXBODYSIZE=1024**2*5 #Maximum size of any html request between moodle platform and the jail service
+    NB_REPLICAS=4	                         #Number of replicas of the jail service
+    #Optionnal    TMPER_PORT=8088                #Port number of a tmper service for temporary storage service
+    #Optionnal    SLPROXY_PORT=8087              #Port number of a sharelatex service
+    PROXY_PORT=8090                              #Socket port number to listen for secure connections (https: and wss:) for the proxy
+    #Optionnal    PROXY_MOODLE_PORT=443          #Port of a moodle proxy
+    #Optionnal    PROXY_MOODLE_PATH=/mod/vpl/ws  #Path of the moodle proxy
+    MAXTIME=600                                  #Maximum time for a request in second
+    MAXFILESIZE=64000000                         #Maximum file size in bytes
+    MAXMEMORY=2000000                            #Maximum memory size in bytes
+    MAXPROCESSES=500                             #Maximum number of processes
+    MAXBODYSIZE=1024**2*5                        #Maximum size of any html request between moodle platform and the jail service
 ```
 
 The **manager** machine should have two files regarding your certificate with the following exact path
@@ -54,7 +61,7 @@ Then call the deploy script passing as arguments workers hostnames
     ./deploy.sh worker1 worker2
 ````
 
-Everything should be up and running with the current host as **manager** and **worker1** and **worker2** as workers. By default, **4** replicas of the service **vplbdx** are launched on the swarm. You may tune this number by replacing **4** in the line **replicas: 4** of the **docker-compose.yml** file by the desired number of replicas.
+Everything should be up and running with the current host as **manager** and **worker1** and **worker2** as workers. By default, **4** replicas of the service **vplbdx** are launched on the swarm. You may tune this number by replacing **4** in the line **NB_REPLICAS=4** of the **.env** file by the desired number of replicas.
 
 
 # Interrupting the service
@@ -109,8 +116,8 @@ http {
     ssl_certificate_key secure.key;
     error_log  /var/log/nginx.log error;
 
-   location / {
-      set $upstream MANAGER_IP:PROXY_PORT;
+   location /PROXY_MOODLE_PATH {
+      set $upstream MANAGER_IP:PROXY_MOODLE_PORT;
       proxy_pass         https://$upstream;
       proxy_redirect     off;
       proxy_set_header   Host $host;
@@ -130,19 +137,19 @@ http {
 }
 ````
 
-Once again, you will have to replace `MANAGER_IP` and `PROXY_PORT` such that `MANAGER_IP` is an ip for **manager** machine that is *accessible only* (if you want to straighten the security - *accessible* if you do not care) from the moodle server and `PROXY_PORT` is the value you set in the `.env` file. Moreover, your certifacte files (here `secure.crt` and `secure.key`) should be present in `/etc/nginx/` folder.
+Once again, you will have to replace `MANAGER_IP` and `PROXY_MOODLE_PORT` such that `MANAGER_IP` is an ip for **manager** machine that is *accessible only* (if you want to straighten the security - *accessible* if you do not care) from the moodle server and `PROXY_PORT` is the value you set in the `.env` file. Moreover, your certifacte files (here `secure.crt` and `secure.key`) should be present in `/etc/nginx/` folder.
 
 The URL of the execution server in the configuration will then be
 
 ```shell
-https://MOODLE_IP:4443
+https://MOODLE_IP:4443/PROXY_MOODLE_PATH
 ````
 
 where `MOODLE_IP` is the public ip to access to your moodle platform (note that the port `4443`may be changed by modifying `listen 4443 ssl;` line accordingly).
 
 # Design an activity with your personal docker image
 
-When designing your VPL activity on your moodle platform, just add an execution file called `vplbdx.cfg`which should contain a line in the following format 
+When designing your VPL activity on your moodle platform, just add an execution file called `vplbdx.cfg` which should contain a line in the following format 
 
 ```shell
 DOCKER=<image-name>
@@ -153,6 +160,12 @@ For example:
 ```shell
 DOCKER=gblin/minivpljava
 ````
+
+The corresponding docker image will be pulled from the local registry if it exists. If not it will be first pull from the Docker Hub. If you need to force the pulling from the Docker Hub (e.g. for update purpose of the image), you can add the following line to your `vplbdx.cfg` file
+
+```shell
+FORCEPULL
+```` 
 
 ## The easy way
 
