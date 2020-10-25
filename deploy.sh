@@ -57,10 +57,10 @@ export `cat .env` #The .env file feature only works when you use the docker-comp
 echo " - Deploying the swarm using .env file configuration"
 docker stack deploy --compose-file docker-compose.yml moodpy
 sleep 3
-docker run -d -p 5000:5000 registry
+docker run -d -p $REGISTRY_PORT:5000 registry
 if [ ! -z "$*" ]; then
   for host in "$*"
     do
-      ssh $host docker run -d -p 5000:5000 registry
+      ssh $host docker run -d -p $REGISTRY_PORT:5000 registry
     done
 fi

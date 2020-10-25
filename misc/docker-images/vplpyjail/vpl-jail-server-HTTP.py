@@ -104,8 +104,8 @@ async def push_info_to_container(root):
         if m:
             dockerforcepull=True
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
-    logging.debug(f"DOCKER USER : {dockeruser}")    
-    localdockerimage="localhost:5000/"+dockerimage
+    logging.debug(f"DOCKER USER : {dockeruser}")   
+    localdockerimage="localhost:"+str(os.environ.get("REGISTRY_PORT"))+"/"+dockerimage
     if dockerforcepull:
         try:
             clientAPI.pull(dockerimage)
