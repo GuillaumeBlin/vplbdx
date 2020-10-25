@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo " - Checking local certificates"
+mkdir /vplbdx/registry
 if [ ! -f /vplbdx/ssl/secure.crt -o ! -f /vplbdx/ssl/secure.key ]; then
     echo "    >> You need to store your cert/key files in vplbdx/ssl as /vplbdx/ssl/secure.crt and /vplbdx/ssl/secure.key files"
     exit 1
@@ -9,6 +10,7 @@ fi
 if [ ! -z "$*" ]; then
     for host in "$*"
     do
+	ssh $host mkdir /vplbdx/registry
     	echo " - Checking distant certificates on $host"
         ssh $host stat /vplbdx/ssl/secure.crt \> /dev/null 2\>\&1
         if [ $? -gt 0 ]; then
@@ -24,15 +26,15 @@ if [ ! -z "$*" ]; then
 fi
 
 # Hard cleaning of the system (if needed)
-#docker system prune -a -f
-#service docker restart
-#if [ ! -z "$*" ]; then
-#    for host in "$*"
-#    do
-#	ssh $host docker system prune -a -f
-#	ssh $host service docker restart
-#    done
-#fi
+docker system prune -a -f
+service docker restart
+if [ ! -z "$*" ]; then
+    for host in "$*"
+    do
+	ssh $host docker system prune -a -f
+	ssh $host service docker restart
+    done
+fi
 
 chmod a+rw /var/run/docker.sock
 chmod o+rwx /dev/kvm
@@ -55,3 +57,10 @@ export `cat .env` #The .env file feature only works when you use the docker-comp
 echo " - Deploying the swarm using .env file configuration"
 docker stack deploy --compose-file docker-compose.yml moodpy
 sleep 3
+docker run -d -p 5000:5000 registry
+if [ ! -z "$*" ]; then
+  for host in "$*"
+    do
+      ssh $host docker run -d -p 5000:5000 registry
+    done
+fi

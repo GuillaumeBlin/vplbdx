@@ -91,6 +91,7 @@ async def push_info_to_container(root):
     config = get_members_and_values(root)
     dockerimage = "gblin/minivpl"
     dockeruser = "root"
+    dockerforcepull = False
     dockercfg = [item[1] for item in config["files"] if item[0] == 'vplbdx.cfg']
     if len(dockercfg) == 1:
         m = re.search("DOCKER=(.*)", ""+dockercfg[0])
@@ -99,13 +100,31 @@ async def push_info_to_container(root):
         m = re.search("USER=(.*)", ""+dockercfg[0])
         if m:
             dockeruser = m.group(1)
+        m = re.search("FORCEPULL", ""+dockercfg[0])
+        if m:
+            dockerforcepull=True
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
     logging.debug(f"DOCKER USER : {dockeruser}")    
-    try:
-      clientAPI.pull(dockerimage)
-    except Exception as e:
-        logging.error(dockerimage+" could not been found on docker hub")
-        return ("","")
+    localdockerimage="localhost:5000/"+dockerimage
+    if dockerforcepull:
+        try:
+            clientAPI.pull(dockerimage)
+            clientAPI.tag(dockerimage,localdockerimage)
+            clientAPI.push(localdockerimage)
+        except Exception as e2:
+            logging.error(dockerimage+" could not been found on docker hub")
+            return ("","")
+    else:
+        try:  
+            clientAPI.pull(localdockerimage)
+        except Exception as e:
+            try:
+                clientAPI.pull(dockerimage)
+                clientAPI.tag(dockerimage,localdockerimage)
+                clientAPI.push(localdockerimage)
+            except Exception as e2:
+                logging.error(dockerimage+" could not been found on docker hub")
+                return ("","")
     # recuperation de DOCKER
     # verification que l'image existe sur le serveur sinon docker pull
     logging.debug(f"CONFIG = {config}")
@@ -114,7 +133,7 @@ async def push_info_to_container(root):
          "privileged":True, "binds":['/dev/kvm:/dev/kvm','/dev/net/tun:/dev/net/tun']}
     logging.debug(f"[HC] > {hc}")
     container_config = clientAPI.create_host_config(**hc)
-    p = clientAPI.create_container(dockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
+    p = clientAPI.create_container(localdockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
     clientAPI.connect_container_to_network(p, "vplpynet")
     clientAPI.disconnect_container_from_network(p, "bridge")
     clientAPI.start(p)
