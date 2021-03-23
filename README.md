@@ -167,6 +167,9 @@ The corresponding docker image will be pulled from the local registry if it exis
 FORCEPULL
 ```` 
 
+Do not let the `FORCEPULL` option while in production mode since it may induce network latencies
+
+
 ## The easy way
 
 For sake of performance, a part of the jail service should be embedded into the corresponding image - namely, a websocket proxy able to pipe the moodle VPL `term.js` client to the shell of the docker and a websocket proxy handling noVNC communications.
