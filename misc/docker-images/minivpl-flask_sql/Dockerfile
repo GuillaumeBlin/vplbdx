@@ -11,4 +11,4 @@ RUN install_packages midori
 RUN install_packages python3-psycopg2 python3-dev libpq-dev
 COPY pip3.list . 
 RUN  pip3 install $(awk '{print $1'} pip3.list) 
-ENTRYPOINT service postgresql start && bash 
+ENTRYPOINT service postgresql start && timeout 10m bash 
