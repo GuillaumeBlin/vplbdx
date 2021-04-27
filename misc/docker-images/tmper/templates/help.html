@@ -1,0 +1,95 @@
+{% extends "head.html" %}
+
+{% block head %}
+<style media="screen" type="text/css">
+.prebox {
+    width: 680px;
+    margin: auto;
+    background-color: rgba(255, 255, 255, 0.62);
+    padding: 10px;
+    font-size: 14px;
+}
+</style>
+{% end %}
+
+{% block content %}
+{% whitespace all %}
+
+<center><h1>Introduction</h1></center>
+<pre class='prebox'>
+TMPER provides temporary file sharing using simple {{codelen}} digit codes ({{36**codelen}} unique).
+Each file can have a max number of downloads, file lifetime, and password
+associated with it, defaults are 1 download, 3 days, and no password. Max
+upload size of 128M.
+
+You can upload and download from the web. After uploading to the main site, you
+will be given a {{codelen}} digit code which you may share. A particular code may then be
+downloaded by visiting https://tmper.co/&lt;code&gt;.
+
+To upload and download from command line, we recommend using tmper as well. This
+can be done by the short commands u, d (see `tmper --help` for details).
+
+    pip install tmper
+    tmper u /path/to/some/file     # upload file and get 3 digit code
+    tmper d &lt;code&gt;                 # download the code
+
+You can also start a server of your own using:
+
+    tmper s --port=&lt;port&gt;
+</pre>
+
+<center><h1>API endpoints</h1></center>
+<pre id='endpoints' class='prebox'>
+GET
+    /               -- landing site with upload
+    /help           -- this information
+    /CODE?ARGS      -- get a file given by CODE
+
+    ARGS (optional) :
+        key - password associated with the file
+        v - view contents on website rather than raw download
+
+    Examples :
+        curl https://tmper.co/uik
+        curl https://tmper.co/ab8?key=supersecretpassword
+        firefox https://tmper.co/7el?v
+
+POST
+    /?ARGS          -- upload a file and receive a name
+    /CODE?ARGS      -- upload file to a particular name
+
+    ARGS (optional) :
+        time -- set the lifetime, for each "3 days", "5 mins"
+        key  -- set a password for a particular file
+        n    -- set number of times a file can be downloaded
+
+    Example :
+        curl -XPOST -F file=@filename https://tmper.co/?key=secretpassword&n=3
+
+# function for .bashrc to simplify upload
+function tmper() { curl -X POST -F file=@"$$1" https://tmper.co/ }
+</pre>
+
+<center><h1>Privacy and terms (ish)</h1></center>
+<pre id='endpoints' class='prebox'>
+In simple terms, we guarantee nothing about your interaction with this site and
+are not liable for anything that may happen to you, your belongings,
+intellectual property, etc due to your use of it. We will attempt to make your
+files available to others under the constraints which you ask (lifetime, number
+of downloads permitted, password protection) but again cannot make any
+guarantees.
+
+We record statistics about your visit including time, file type, and file size
+of each upload. However, when a file has expired (from time or download count)
+we delete both the file and all other metadata associated with it. We use
+cookies (client side reading only) to keep track of your preferences so that
+you don't have to fiddle with the interface every visit. We track your visit
+with server logs, which are purged periodically. We may look at these logs to
+ensure the health of the site in a hostile internet environment.  These
+statements may be checked by viewing the source code, which is available under
+the MIT license -- this code is directly run on a VPS for convenience to users.
+</pre>
+
+{% end %}
+
+{% whitespace single %}

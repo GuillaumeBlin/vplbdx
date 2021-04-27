@@ -1,0 +1,9 @@
+*.pyc
+files/*
+.tmpr-files/*
+.tmper-files/*
+build/
+dist/
+tmpr.egg-info/
+tmper.egg-info/
+MANIFEST

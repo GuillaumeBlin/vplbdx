@@ -1,0 +1,33 @@
+{% extends "head.html" %}
+
+{% block head %}
+<style media="screen" type="text/css">
+#error {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 266px;
+    flex-direction: column;
+}
+
+#error_title {
+    text-align: center;
+    font-size: 128px; 
+    margin: 0;
+    padding: 0;
+}
+
+#error_content {
+    text-align: center;
+    font-size: 80px;
+}
+</style>
+{% end %}
+
+{% block content %}
+<div id='error'>
+    <pre id='error_title'>ERROR:</pre>
+    <pre id='error_content'>$error</pre>
+</div>
+{% end %}
