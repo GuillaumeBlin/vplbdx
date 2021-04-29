@@ -10,4 +10,4 @@ RUN mkdir -p /vplbdx/ssl
 RUN mkdir -p /opt/tmper
 ADD ./ /opt/tmper
 EXPOSE 1443
-CMD cd /opt/tmper && python tmper/.  
+CMD cd /opt/tmper && python tmper/. &> /opt/tmper/log  
