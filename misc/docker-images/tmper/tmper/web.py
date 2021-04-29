@@ -14,7 +14,8 @@ import tempfile
 
 import time
 import threading
-import parsedatetime
+from pytimeparse import parse
+#import parsedatetime
 import datetime
 
 import tornado.web
@@ -111,7 +112,8 @@ class FileManager(object):
                 continue
 
             meta = self.open_meta(c)
-            time = date2diff(str2date(meta['time']))
+            logging.info(meta['time'])
+            time = date2diff(meta['time'])
             time = max([time, 1])
             self.timers[c] = threading.Timer(time, self.timer_func, args=(c,))
             self.timers[c].start()
@@ -179,16 +181,18 @@ class FileManager(object):
         return os.path.isfile(self.path(name))
 
 def dt2date(dt):
-    cal = parsedatetime.Calendar()
-    return cal.parseDT(dt, datetime.datetime.now())[0]
+    return datetime.timedelta(seconds=parse(dt))
+    #cal = parsedatetime.Calendar()
+    #return cal.parseDT(dt, datetime.datetime.now())[0]
 
-def str2date(string):
-    cal = parsedatetime.Calendar()
-    sec = time.mktime(cal.parse(string)[0])
-    return datetime.datetime.fromtimestamp(sec)
+#def str2date(string):
+#    cal = parsedatetime.Calendar()
+#    sec = time.mktime(cal.parse(string)[0])
+#    return datetime.datetime.fromtimestamp(sec)
 
 def date2diff(date):
-    return (date - datetime.datetime.now()).total_seconds()
+    logging.info(date)
+    return (datetime.datetime.strptime(date,"%c") - datetime.datetime.now()).total_seconds()
 
 files = None
 
@@ -326,20 +330,21 @@ class MainHandler(Handler):
         usern = int(self.request.arguments.get('n', [1])[0])
         #usern = max(min(usern, MAX_DOWNLOADS), 0)
         meta['n'] = usern
-
+        logging.info(self.request.arguments)
         if meta['key']:
             meta['key'] = key_hash(meta['key'])
 
         try:
             time = dt2date(self.request.arguments.get('time', ['10 mins'])[0])
         except Exception as e:
-            self.error('invalid time')
+            self.error('invalid time'+str(e))
             return
         # limit the time between valid parameters
-        tmin = dt2date('1 min')
+        tmin = dt2date('10 mins')
         tmax = dt2date('7 days')
         time = max(tmin, min(tmax, time))
-        meta['time'] = str(time)
+        time = (datetime.datetime.now()+time)
+        meta['time']=time.ctime()
         logging.info(meta['time'])
         # change to error occured since file already exists
         if args and files.exists(args):
