@@ -1,0 +1,198 @@
+<script type="text/javascript" src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/canvas2image.js"></script>
+<script type="text/javascript" src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/html2canvas.js"></script>
+<script type="text/javascript" src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/gifshot.js"></script>
+<script type="text/javascript" src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/jquery.min.js"></script>
+<script type="text/javascript" src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/progc.js"></script>
+
+<h4>Consignes</h4>
+<ul>
+<li>⚠ Appuyez sur le bouton de soumission d'un nouveau devoir (i.e. <code>Ajouter un travail</code>) pour commencer l'exercice</li>
+<li>Après chaque modification de la pile, cliquez sur <code>Add to current Gif</code> pour valider le nouvel état de la pile de votre réponse</li>
+<li>Pour recommencer l'exercice, cliquez sur <code>New Gif</code> (votre réponse actuelle sera perdue)</li>
+<li>Vous devez respecter la convention de passage de paramètres de l'architecture x86 vue en cours intégré</li>
+<li>Les valeurs doivent être toutes stockées en hexadécimal&nbsp;<br>
+<input id="decBox" type="text" onkeypress="javascript:convertDec(event)"> (décimal) → (hexa)<input id="hexaBox" type="text" disabled=""><br>
+<input id="charBox" type="text" onkeypress="javascript:$('#asciiBox').val(event.keyCode);"> (char) → (ascii)<input id="asciiBox" type="text" disabled=""></li>
+<li>Pour rendre le devoir, vous devez cliquer sur <code>Save the Gif</code>, le stocker sur votre ordinateur et le déposer dans la zone prévue à cet effet (i.e. <code>Remises de fichiers</code>)</li>
+</ul>
+
+<h4>Code</h4>
+<!-- HTML generated using hilite.me --><div style="background: #ffffff; overflow:auto;width:auto;border:solid gray;border-width:.1em .1em .1em .8em;padding:.2em .6em;">
+<table style="box-shadow:none;width:100%"><tbody><tr><td><pre style="background-color:white;border:0px;margin: 0; line-height: 125%">1
+2
+3
+4
+5
+6
+7
+8
+9</pre></td><td><pre style="background-color:white;border:0px;margin: 0; line-height: 125%"><span style="color: #aaaaaa; font-style: italic">/*La pile: déclaration de variables (2)*/</span>
+<span style="color: #00aaaa">void</span> <span style="color: #00aa00">main</span>(<span style="color: #00aaaa">void</span>){
+ <span style="color: #00aaaa">int</span> i=<span style="color: #009999">10</span>;
+ <span style="color: #00aaaa">int</span> j=i%<span style="color: #009999">3</span>;
+ <span style="color: #0000aa">if</span> (j==<span style="color: #009999">0</span>){
+ 	puts(<span style="color: #aa5500">"i est multiple de 3\n"</span>);
+ <span style="color: #0000aa">}else{</span>
+ 	puts(<span style="color: #aa5500">"i n'est pas multiple de 3\n"</span>);
+ }
+}
+</pre></td></tr></tbody></table></div>
+
+
+<h4>Tips</h4>
+<ul>
+<li>ne simuler pas les appels de fonctions <code>puts</code></li>
+</ul>
+
+<div id="stackdiv" style="width:100%;display:none;">
+
+
+<div id="bricks" style="float:left;width:400px;">
+<div id="garbage" style="float:right;
+    background-image: url(https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/poubelle.png);
+    width: 80px;
+    height: 80px;
+    background-size: 80px;
+    background-repeat: no-repeat;
+    margin: 10px;padding: 10px;" ondrop="dropanddestroy(event)" ondragover="allowDrop(event)"></div><img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick.png" draggable="true" ondragstart="drag(event)" id="drag1" style="zoom:50%"> char<br>
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-r.png" draggable="true" ondragstart="drag(event)" id="drag2" style="zoom:50%"> int<br>
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-g.png" draggable="true" ondragstart="drag(event)" id="drag3" style="zoom:50%"> pointeur<br>
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-b.png" draggable="true" ondragstart="drag(event)" id="drag4" style="zoom:50%"> fonction<br>
+<input type="button" id="btnNew" onclick="javascript:reset()" value="New Gif"><input type="button" id="btnAdd" onclick="javascript:add()" value="Add To Current Gif"><a href="#" id="btnSave" download="stack-ex2.gif"><input type="button" value="Save Current Gif"></a>
+    <div style="clear:both"></div>
+<div style="border:1px solid #aaaaaa;margin:10px;width:250px; height:325px;" id="gif-out">Dernière image générée...</div>
+</div>
+<div id="fullstack" style="background-color:white;float:left;border:1px solid #aaaaaa;margin:10px;width:400px; height:520px;">
+
+<div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x1</div><div id="div1" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 100;">
+
+</div>
+<div id="div2" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 100;">
+
+</div>
+<div id="div3" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 100;">
+
+</div>
+<div id="div4" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 100;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x5</div><div id="div5" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 90;">
+
+</div>
+<div id="div6" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 90;">
+
+</div>
+<div id="div7" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 90;">
+
+</div>
+<div id="div8" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 90;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x9</div><div id="div9" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 80;">
+
+</div>
+<div id="div10" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 80;">
+
+</div>
+<div id="div11" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 80;">
+
+</div>
+<div id="div12" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 80;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0xd</div><div id="div13" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 70;">
+
+</div>
+<div id="div14" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 70;">
+
+</div>
+<div id="div15" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 70;">
+
+</div>
+<div id="div16" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 70;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x11</div><div id="div17" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 60;">
+
+</div>
+<div id="div18" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 60;">
+
+</div>
+<div id="div19" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 60;">
+
+</div>
+<div id="div20" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 60;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x15</div><div id="div21" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 50;">
+
+</div>
+<div id="div22" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 50;">
+
+</div>
+<div id="div23" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 50;">
+
+</div>
+<div id="div24" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 50;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x19</div><div id="div25" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 40;">
+
+</div>
+<div id="div26" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 40;">
+
+</div>
+<div id="div27" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 40;">
+
+</div>
+<div id="div28" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 40;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x1d</div><div id="div29" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 30;">
+
+</div>
+<div id="div30" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 30;">
+
+</div>
+<div id="div31" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 30;">
+
+</div>
+<div id="div32" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 30;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x21</div><div id="div33" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 20;">
+
+</div>
+<div id="div34" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 20;">
+
+</div>
+<div id="div35" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 20;">
+
+</div>
+<div id="div36" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 20;">
+
+</div>
+</div><div style="clear:both"></div><div id="stack" style="background-color:white;"><div id="divadd" onclick="javascript:toggle(this);" style="float: left; width: 40px; height: 50px;line-height: 80px;">0x25</div><div id="div37" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 10;">
+
+</div>
+<div id="div38" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 10;">
+
+</div>
+<div id="div39" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 10;">
+
+</div>
+<div id="div40" ondrop="drop(event)" ondragover="allowDrop(event)" style="float: left;width: 85px;height: 50px;position: relative;z-index: 10;">
+
+</div>
+</div><div style="clear:both"></div></div>
+
+<div style="clear:both"></div>
+<div style="visibility:hidden">
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick.png" draggable="true" ondragstart="drag(event)" id="fdrag1">
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-r.png" draggable="true" ondragstart="drag(event)" id="fdrag2">
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-g.png" draggable="true" ondragstart="drag(event)" id="fdrag3">
+<img src="https://moodle1.u-bordeaux.fr/pluginfile.php/310725/mod_folder/content/0/brick16-b.png" draggable="true" ondragstart="drag(event)" id="fdrag4">
+</div>
+<div id="lastimg" style="visibility:hidden"></div>
+<div id="lastgif" style="visibility:hidden"></div>
+</div>
