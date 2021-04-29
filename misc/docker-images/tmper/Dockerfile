@@ -10,4 +10,4 @@ RUN mkdir -p /vplbdx/ssl
 RUN mkdir -p /opt/tmper
 ADD ./ /opt/tmper
 EXPOSE 1443
-CMD cd /opt/tmper && python tmper/. &> /opt/tmper/log  
+CMD cd /opt/tmper && python tmper/. &> /opt/tmper/log && /bin/sh -c "while true; do sleep 1; done"
