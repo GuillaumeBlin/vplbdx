@@ -87,46 +87,46 @@ services:
       placement:
         constraints:
           - node.role == manager
-#  sharelatexproxy:
-#    image :  gblin/sharelatexproxy      
-#    container_name: SLproxy
-#    ports:
-#      - target: 443
-#        published: ${SLPROXY_PORT}
-#        protocol: tcp
-#        mode: host
-#    volumes:
-#      - type: bind
-#        source : /vplbdx/ssl
-#        target : /vplbdx/ssl
-#        read_only : true
-#    deploy:
-#      placement:
-#        constraints:
-#          - node.role == manager
-#  sharelatex:
-#    image: gblin/sharelatex    
-#    container_name: sharelatex
-#    depends_on:
-#      - mongo
-#      - redis
-#    privileged: true
-#    links:
-#      - mongo
-#      - redis
-#    volumes:
-#      - ./sharelatex_data:/var/lib/sharelatex
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    environment:
-#      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
-#      SHARELATEX_REDIS_HOST: redis
-#      SHARELATEX_APP_NAME: UF Info ShareLaTeX
-#      SHARELATEX_SITE_URL: https://services.emi.u-bordeaux.fr/sharelatex
-#      SHARELATEX_BEHIND_PROXY: 1
-#    deploy:
-#      placement:
-#        constraints:
-#          - node.role == manager
+  sharelatexproxy:
+    image :  gblin/sharelatexproxy      
+    container_name: SLproxy
+    ports:
+      - target: 443
+        published: ${SLPROXY_PORT}
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source : /vplbdx/ssl
+        target : /vplbdx/ssl
+        read_only : true
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
+  sharelatex:
+    image: gblin/sharelatex    
+    container_name: sharelatex
+    depends_on:
+      - mongo
+      - redis
+    privileged: true
+    links:
+      - mongo
+      - redis
+    volumes:
+      - ./sharelatex_data:/var/lib/sharelatex
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
+      SHARELATEX_REDIS_HOST: redis
+      SHARELATEX_APP_NAME: UF Info ShareLaTeX
+      SHARELATEX_SITE_URL: https://services.emi.u-bordeaux.fr/sharelatex
+      SHARELATEX_BEHIND_PROXY: 1
+    deploy:
+      placement:
+        constraints:
+          - node.role == manager
   mongo:
     restart: always
     image: mongo
