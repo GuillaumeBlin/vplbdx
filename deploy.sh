@@ -5,6 +5,7 @@ mkdir /vplbdx/registry
 mkdir /vplbdx/mongo_data
 mkdir /vplbdx/tmper_data
 mkdir /vplbdx/redis_data
+mkdir /dev/kvm
 if [ ! -f /vplbdx/ssl/secure.crt -o ! -f /vplbdx/ssl/secure.key ]; then
     echo "    >> You need to store your cert/key files in vplbdx/ssl as /vplbdx/ssl/secure.crt and /vplbdx/ssl/secure.key files"
     exit 1
