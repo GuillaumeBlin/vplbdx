@@ -1,13 +1,16 @@
 #!/bin/bash
 
 echo " - Checking local certificates"
-mkdir /vplbdx/registry
-mkdir /vplbdx/mongo_data
-mkdir /vplbdx/tmper_data
-mkdir /vplbdx/redis_data
-mkdir /dev/kvm
+mkdir -p /vplbdx/registry
+mkdir -p /vplbdx/mongo_data
+mkdir -p /vplbdx/tmper_data
+mkdir -p /vplbdx/redis_data
+mkdir -p /dev/kvm
 if [ ! -f /vplbdx/ssl/secure.crt -o ! -f /vplbdx/ssl/secure.key ]; then
     echo "    >> You need to store your cert/key files in vplbdx/ssl as /vplbdx/ssl/secure.crt and /vplbdx/ssl/secure.key files"
+    echo "    >> openssl genrsa 2048 > /vplbdx/ssl/secure.key"
+    echo "    >> chmod 400 /vplbdx/ssl/secure.key"
+    echo "    >> openssl req -new -x509 -nodes -sha256 -days 365 -key /vplbdx/ssl/secure.key -out /vplbdx/ssl/secure.crt"
     exit 1
 fi
 
