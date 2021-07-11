@@ -2,6 +2,7 @@ FROM openresty/openresty
 LABEL maintainer="guillaume.blin@u-bordeaux.fr"
 LABEL authors="Guillaume Blin and Corentin Abel Mercier"
 COPY nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
+COPY DigiCertCA.crt /vplbdx/ssl/DigiCertCA.crt
 RUN cd /usr/local/openresty/nginx/conf/ && ln -s /vplbdx/ssl/secure.crt
 RUN cd /usr/local/openresty/nginx/conf/ && ln -s /vplbdx/ssl/secure.key
 RUN cd /usr/local/openresty/nginx/conf/ && ln -s /vplbdx/ssl/DigiCertCA.crt
