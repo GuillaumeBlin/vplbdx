@@ -55,6 +55,14 @@ The **manager** machine should have two files regarding your certificate with th
 /vplbdx/ssl/secure.crt # Your ssl_certificate
 /vplbdx/ssl/secure.key # Your ssl_certificate_key
 ````
+
+Self-signed certificates can be created using openssl
+
+```shell
+openssl req -new -x509 -nodes -sha256 -days 365 -subj '/CN=MANAGER_IP' -key /vplbdx/ssl/secure.key -out /vplbdx/ssl/secure.cert
+```
+where `MANAGER_IP` is the IP of the **manager**
+
 Then call the deploy script passing as arguments workers hostnames
 
 ```shell
