@@ -31,7 +31,7 @@ from multidict import MultiDictProxy
 from rpc import (availableResponse, crypt, get_members_and_values,
                  get_specific_value, getResultResponse, requestResponse)
 
-server_config = {"ws_server_port": str(os.environ.get("PROXY_PORT"))+os.environ.get("PROXY_MOODLE_PATH"), "server_port": 8092, "MAXBODYSIZE" : os.environ.get("MAXBODYSIZE"), "MAXTIME" : os.environ.get("MAXTIME"), "MAXFILESIZE": os.environ.get("MAXFILESIZE"), "MAXMEMORY": os.environ.get("MAXMEMORY"), "MAXPROCESSES": os.environ.get("MAXPROCESSES")}
+server_config = {"SERVER_NAME":str(os.environ.get("SERVER_NAME")),"ws_server_port": str(os.environ.get("PROXY_PORT"))+os.environ.get("PROXY_MOODLE_PATH"), "server_port": 8092, "MAXBODYSIZE" : os.environ.get("MAXBODYSIZE"), "MAXTIME" : os.environ.get("MAXTIME"), "MAXFILESIZE": os.environ.get("MAXFILESIZE"), "MAXMEMORY": os.environ.get("MAXMEMORY"), "MAXPROCESSES": os.environ.get("MAXPROCESSES")}
 routes = web.RouteTableDef()
 htmlparser = HTMLParser()
 
@@ -105,7 +105,7 @@ async def push_info_to_container(root):
             dockerforcepull=True
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
     logging.debug(f"DOCKER USER : {dockeruser}")   
-    localdockerimage="localhost:"+str(os.environ.get("REGISTRY_PORT"))+"/"+dockerimage
+    localdockerimage=str(os.environ.get("REGISTRY_URL"))+":"+str(os.environ.get("REGISTRY_PORT"))+"/"+dockerimage
     if dockerforcepull:
         try:
             clientAPI.pull(dockerimage)
@@ -133,20 +133,20 @@ async def push_info_to_container(root):
          "privileged":True, "binds":['/dev/kvm:/dev/kvm','/dev/net/tun:/dev/net/tun']}
     logging.debug(f"[HC] > {hc}")
     container_config = clientAPI.create_host_config(**hc)
-    p = clientAPI.create_container(localdockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl.emi.u-bordeaux.fr", working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
+    p = clientAPI.create_container(localdockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname=server_config["SERVER_NAME"], working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
     clientAPI.connect_container_to_network(p, "vplpynet")
     clientAPI.disconnect_container_from_network(p, "bridge")
     clientAPI.start(p)
     subdocker_ip = clientAPI.inspect_container(p["Id"])["NetworkSettings"]["Networks"]["vplpynet"]["IPAddress"]
     pid = p["Id"]
-    file = open('/vplbdx/ssl/secure.crt',mode='r') 
+    file = open('/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/fullchain.pem',mode='r') 
     content = file.read()
     file.close()
-    await push_file(pid, content, ".ssl/secure.crt")
-    file = open('/vplbdx/ssl/secure.key',mode='r') 
+    await push_file(pid, content, ".ssl/fullchain.pem")
+    file = open('/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/privkey.pem',mode='r') 
     content = file.read()
     file.close()
-    await push_file(pid, content, ".ssl/secure.key")
+    await push_file(pid, content, ".ssl/privkey.pem")
     for (file_name, content) in config["files"]:
         if file_name != 'vplbdx.cfg':
             logging.debug(f'FILE {file_name} | CONTENT = {content} (EOF)')
@@ -237,5 +237,5 @@ app = web.Application(client_max_size=server_config["MAXBODYSIZE"])
 app.add_routes(routes)
 logging.debug(str(docker_ip))
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-ssl_context.load_cert_chain('/vplbdx/ssl/secure.crt', '/vplbdx/ssl/secure.key')
+ssl_context.load_cert_chain('/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/fullchain.pem', '/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/privkey.pem')
 web.run_app(app, ssl_context=ssl_context, port=server_config["server_port"])

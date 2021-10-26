@@ -1,0 +1,15 @@
+Voici une solution pour le stockage de fichiers temporaires (minimum 1 minute, maximum 7 jours, par défaut 10 minutes - ET - un nombre d'accès maximum - Dès qu'une condition est respectée - temps ou nombre d'accès - le fichier est supprimé) et permanents (nouveauté de tout de suite)
+
+* dépôt d'un fichier image permanent (avec un nombre d'accès négatif, n = -1 )
+curl -XPOST -F file="@travel.png;type=image/png"  https://serveur/transfer.sh/?n=-1
+
+* dépôt d'un fichier image disponible au plus 3 fois ou durant 2 minutes maximum
+curl -XPOST -F file="@travel.png;type=image/png" https://serveur/transfer.sh/?n=3&time='2 mins'
+
+* dépôt d'un fichier texte disponible au plus 1 fois ou durant 3 jours maximum
+
+curl -XPOST -F file="@map1.txt;type=text/plain" https://serveur/transfer.sh/?n=1&time="3 days"
+
+* dépôt d'un fichier sans mime-type : le fichier est par défaut téléchargé
+
+curl -XPOST -F file="@valgrind.c" https://serveur/transfer.sh/?n=1&time='2 mins'

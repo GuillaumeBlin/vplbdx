@@ -1,0 +1,23 @@
+{% extends "head.html" %}
+
+{% block head %}
+<style media="screen" type="text/css">
+#codeurl {
+    font-size: 256px; 
+    margin: 0;
+    padding: 0;
+}
+
+.wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 266px;
+}
+</style>
+{% end %}
+
+{% block content %}
+<div class='wrap'><pre id='codeurl' class='border'>$namecode</pre></div>
+{% end %}

@@ -1,0 +1,307 @@
+{% extends "head.html" %}
+
+{% block head %}
+<style media="screen" type="text/css">
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+    cursor: pointer;
+}
+
+.pulse {
+    animation-name: pulser;
+    animation-duration: 2s;
+    animation-iteration-count: infinite;
+}
+@keyframes pulser {
+    0%, 100% {opacity: 0.1;}
+    50% {opacity: 1.0;}
+}
+
+#content {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    min-height: 546px;
+}
+
+#folder {
+    cursor: pointer;
+    fill: rgba(0,0,0,0.4);
+    transition: fill 0.25s ease;
+}
+
+#folder:hover {
+    transition: fill 0.25s ease;
+    fill: rgba(0,0,0,0.6);
+}
+
+.drag {fill: rgba(0,0,0,0.6);}
+.hidden {display: none !important;}
+
+#codeurl {
+    font-size: 256px; 
+    margin: 0;
+    padding: 0;
+}
+
+#percent {
+    font-size: 256px;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#opt-expand {cursor: pointer;}
+#opt-expand label {cursor: pointer;}
+
+#options {
+    display: flex;
+    flex-direction: row;
+    /*justify-content: space-around;*/
+}
+</style>
+
+<script type='text/javascript'>
+var keys = ['n', 'key', 'time'];
+var tests, fld, lbl, cod;
+var busy = false;       // whether there is an upload occuring right now
+var autosubmit = true;  // do we auto submit form on dnd or file change
+var simple = false;     // automatically simplify the upload form
+
+function setlbl(val) {lbl.value = lbl.innerHTML = val;}
+function setcode(val) {cod.value = cod.innerHTML = val;}
+
+function readCookie(name) {
+    return (name = new RegExp('(?:^|;\\s*)' + ('' + name).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&') + '=([^;]*)').exec(document.cookie)) && name[1];
+}
+
+function writeCookies(){
+    for (k in keys){
+        writeCookie(keys[k], document.getElementById(keys[k]).value);
+    }
+}
+
+function writeCookie(name, key){
+    var str = name+'='+key+'; ';
+    var d = new Date();
+    d.setTime(d.getTime()+(7*24*60*60*1000));
+    str += 'expires='+d.toGMTString()+'; path=/';
+    document.cookie = str;
+}
+
+function cookie2value(name) {
+    val = readCookie(name);
+    if (val !== null)
+        document.getElementById(name).value = val;
+}
+
+window.onload = function(){
+    bdy = document.body;
+    fld = document.getElementById('folder');
+    cod = document.getElementById('codeurl');
+    lbl = document.getElementById('percent');
+    frm = document.getElementById('filearg');
+
+    tests = {
+        filereader: typeof FileReader != 'undefined',
+        dnd: 'draggable' in document.createElement('span'),
+        formdata: !!window.FormData,
+        progress: "upload" in new XMLHttpRequest
+    }; 
+
+    if (tests.dnd) { 
+        bdy.ondragover = function() {if (!busy) {fld.classList = ['drag'];} return false;};
+        bdy.ondragend = function() {if (!busy) {fld.classList = [''];} return false;};
+        bdy.ondrop = function(e) {
+            e.preventDefault();
+            frm.files = e.dataTransfer.files;
+
+            if (autosubmit) readfiles();
+        }
+    }
+
+    if (autosubmit) {
+        func = function() {readfiles();};
+        document.getElementById('button').onclick = func;
+        document.getElementById('filearg').onchange = func;
+        document.getElementById('button').className = 'hidden';
+    }
+
+    switcher = function (){
+        if (simple) {
+            simple = false;
+            document.getElementById('opt-n').className = 'backer';
+            document.getElementById('opt-time').className = 'backer';
+            document.getElementById('opt-expand').className = 'backer2';
+            document.getElementById('lbl-key').innerHTML = "P/W:\n<span class='tt'>?<pre class='ttt'>Password protect file</pre></span>";
+            document.getElementById('lbl-expand').innerHTML = '&gt;';
+            writeCookie('simple', 'false');
+        } else {
+            simple = true;
+            document.getElementById('opt-n').className = 'backer hidden';
+            document.getElementById('opt-time').className = 'backer hidden';
+            document.getElementById('opt-expand').className = 'backer2';
+            document.getElementById('lbl-key').innerHTML = "PASSWORD PROTECT FILE:\n<span class='tt'>?<pre class='ttt'>Provide password to give selective access to file</pre></span>";
+            document.getElementById('lbl-expand').innerHTML = '&lt;';
+            writeCookie('simple', 'true');
+        }
+    }
+    document.getElementById('opt-expand').onclick = switcher;
+    document.getElementById('opt-expand').className = 'backer2';
+
+    if (document.cookie){
+        var cs = readCookie('simple');
+        var lsimple = false;
+        if (cs == 'true')  lsimple = true;
+        if (cs == 'false') lsimple = false;
+        if (cs == null)    lsimple = true;
+        if (simple != lsimple) {switcher();}
+
+        for (k in keys){
+            cookie2value(keys[k]);
+        }
+    } else {
+        switcher();
+    }
+
+    docookie = function() { writeCookie(this.id, this.value); }
+    for (k in keys)
+        document.getElementById(keys[k]).onchange = docookie;
+}
+
+function show_error(msg, time){
+    var lay = document.getElementById('overlay');
+    txt = lay.innerText;
+    lay.innerText = msg;
+    lay.style.color = 'red';
+    setTimeout(function(){
+        lay.innerText = txt;
+        lay.style.color = 'white';
+    }, time*1000);
+}
+
+function readfiles() {
+    files = document.getElementById('filearg').files;
+    console.log(files);
+
+    if (busy) return;
+
+    if (files.length == 0){
+        show_error('No file selected');
+        return;
+    }
+
+    if (files[0].size > 128000000){
+        show_error('Filesize > 128MB', 5);
+        return;
+    }
+
+    var formData = tests.formdata ? new FormData() : null;
+    for (var i=0; i<files.length; i++) {
+        if (tests.formdata)
+            formData.append('file', files[i]);
+    }
+
+    if (tests.formdata){
+        formData.append('n', document.getElementById('n').value);
+        formData.append('time', document.getElementById('time').value);
+        formData.append('key', document.getElementById('key').value);
+    }
+
+    if (tests.formdata) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == XMLHttpRequest.DONE) {
+                document.getElementById('form').className = 'hidden';
+                document.getElementById('options').className = '';
+                document.getElementById('overlay').className = '';
+                setcode(xhr.responseText);
+                cod.className = 'border';
+                lbl.className = 'hidden';
+                busy = false;
+            }
+            if (xhr.readyState == XMLHttpRequest.OPENED) {
+                document.getElementById('form').className = '';
+                document.getElementById('options').className = 'hidden';
+                document.getElementById('overlay').className = 'hidden';
+                fld.classList = ['pulse'];
+                cod.className = 'hidden';
+                lbl.className = '';
+                setlbl('0%');
+                busy = true;
+            }
+        }
+
+        if (tests.progress) {
+            xhr.upload.onprogress = function (event) {
+                if (event.lengthComputable) {
+                    var complete = Math.floor(100*(event.loaded / event.total));
+                    setlbl(complete+'%');
+                }
+            }
+        }
+
+        xhr.open('POST', '/?codeonly=true');
+        xhr.send(formData);
+        writeCookies();
+    }
+}
+</script>
+{% end %}
+
+{% block content %}
+<br/>
+<div id='content' class=''>
+<form enctype="multipart/form-data" action='/' method='post' id='form'>
+    <center><span id='overlay'>Upload file & share:</span></center>
+    <input type='file' id='filearg' name='filearg' class='inputfile'/><br/>
+    <label for='filearg'>
+        <center>
+        <svg id='folder' width='512' height='420' viewBox='0 4 32 26'>
+            <path d="M18 8l-4-4h-14v26h32v-22h-14zM16 15l7 7h-5v8h-4v-8h-5l7-7z"/>
+            <pre id='percent' class='hidden'></pre>
+        </svg>
+        </center>
+    <span></span>
+    </label>
+    <br/>
+    <div id='options'>
+    <div id='buttons'>
+        <input id='button' type='submit' value='Upload'>
+        <div id='opt-n' class='backer'>
+            <label for='n' class='formlbl'>COUNT:
+                <span class='tt'>?<pre class='ttt'>Number of downloads</pre></span>
+            </label><input type='number' name='n' id='n' class='textinput' value=1 min=1 max=5>
+        </div>
+        <div id='opt-time' class='backer'>
+            <label for='time' class='formlbl'>TIME:
+                <span class='tt'>?<pre class='ttt'>Time limit ('5 min', '1 day', '1 week')</pre></span>
+            </label><input type='text' name='time' id='time' class='textinput' value='3 days'>
+        </div>
+        <div id='opt-key' class='backer'>
+            <label for='key' class='formlbl' id='lbl-key'>P/W:
+                <span class='tt'>?<pre class='ttt'>Password protect file</pre></span>
+            </label><input type='password' name='key' id='key' class='textinput' value=>
+        </div>
+    </div>
+    <div id='opt-expand' class='backer2 hidden'>
+        <label class='formlbl2' id='lbl-expand'>&gt;</label>
+    </div>
+    </div>
+</form>
+<pre id='codeurl' class='hidden'></pre>
+</div>
+{% end %}
+
+

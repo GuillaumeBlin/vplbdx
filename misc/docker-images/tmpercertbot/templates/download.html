@@ -1,0 +1,52 @@
+{% extends 'head.html' %}
+{% block head %}
+<style media="screen" type="text/css">
+#dl {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+    min-height: 266px;
+    flex-direction: column;
+}
+
+#codeurl {
+    font-size: 256px; 
+    margin: 0;
+    padding: 0;
+    font-family: monospace;
+    white-space: pre;
+    text-align: center;
+    border-color: black;
+    color: black;
+
+    height: 1.05em;
+    width: {{codelen+0.15}}ch;
+}
+</style>
+<script type='text/javascript'>
+window.onload = function(){
+    document.getElementById('codeurl').focus();
+}
+</script>
+{% end %}
+
+{% block content %}
+<div id='dl'>
+
+<form enctype="multipart/form-data" action='/' method='get' id='form' onsubmit='return submit();'>
+    <span id='overlay' style='font-size: 36px;'>Input code:</span>
+    <input type='text' name='code' id='codeurl' class='border' maxlength='{{codelen}}'/>
+    <div id='buttons'>
+        <input id='button' type='submit' value='Download'>
+        <div class='backer'>
+            <label for='key' class='formlbl'>P/W: 
+                <span class='tt'>?<pre class='ttt'>Password associated with file</pre></span>
+            </label>
+            <input type='password' name='key' id='key' class='textinput' value=>
+        </div>
+    </div>
+</form>
+
+</div>
+{% end %}

@@ -208,7 +208,7 @@ else:
     logging.basicConfig(filename='WS.log', level=logging_level)
 
 ssl_context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
-ssl_context.load_cert_chain('/vplbdx/ssl/secure.crt', '/vplbdx/ssl/secure.key')
+ssl_context.load_cert_chain('/vplbdx/ssl/fullchain.pem', '/vplbdx/ssl/privkey.pem')
 print(f"======== Running on port {ws_server_port} ========")
 print("(Press CTRL+C to quit)")
 start_server = websockets.serve(main_handler, port=ws_server_port, ssl=ssl_context)
