@@ -2,38 +2,42 @@ version: '3.3'
 
 services:
   proxy:
-    image: gblin/vplpyproxy
+    image: openresty/openresty
     ports:
-      - target: 443
-        published: ${PROXY_PORT}
-        protocol: tcp
-        mode: host
+     - "80:80"
+     - "443:443" 
     volumes:
-      - type: bind
-        source : /vplbdx/ssl
-        target : /vplbdx/ssl
-        read_only : true
+      - /vplbdx/ssl:/usr/local/openresty/nginx/conf
+      - /vplbdx/certbot/www:/var/www/certbot
+      - /vplbdx/certbot/conf:/etc/letsencrypt
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
     depends_on:
       - vplbdx
     deploy:
       placement:
         constraints:
           - node.role == manager
+  certbot:
+    image: certbot/certbot
+    volumes:
+        - /vplbdx/certbot/conf:/etc/letsencrypt
+        - /vplbdx/certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew -q; sleep 72h & wait $${!}; done;'"
   vplbdx:
-    image: gblin/vplpyjail
+    image: gblin/vplpyjailcertbot
     environment:
       - PROXY_MOODLE_PATH=${PROXY_MOODLE_PATH}
-      - PROXY_PORT=${PROXY_MOODLE_PORT}
+      - PROXY_PORT=443
+      - SERVER_NAME=${SERVER_NAME}
       - REGISTRY_PORT=${REGISTRY_PORT}
       - MAXTIME=${MAXTIME}
       - MAXFILESIZE=${MAXFILESIZE}
       - MAXMEMORY=${MAXMEMORY}
       - MAXPROCESSES=${MAXPROCESSES}
+      - SERVERNAME=${SERVERNAME}
     volumes:
-      - type: bind
-        source : /vplbdx/ssl
-        target : /vplbdx/ssl
-        read_only : true
+      - /vplbdx/certbot/conf:/etc/letsencrypt
+      - /vplbdx/ssl:/vplbdx/ssl
       - /var/run/docker.sock:/var/run/docker.sock
       - /usr/bin/docker:/usr/bin/docker
       - /dev/kvm:/dev/kvm
@@ -41,92 +45,26 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
     deploy:
       replicas: ${NB_REPLICAS}
-# If you want to test on a dockerized version of moodle; uncomment the following lines
-# you will have to install vpl plugin into moodle. Default admin account is 'user' with 'bitnami' as password.
-# Note that both the mariadb and moodle configuration and data will be "persitent" in the "/tmp/moodle/persistence" directory.
-#   mariadb:
-#    image: 'bitnami/mariadb:latest'
-#    environment:
-#      - ALLOW_EMPTY_PASSWORD=yes
-#      - MARIADB_USER=bn_moodle
-#      - MARIADB_DATABASE=bitnami_moodle
-#    volumes:
-#      - '/tmp/moodle/persistence:/bitnami'
-#  moodle:
-#    image: 'bitnami/moodle:latest'
-#    environment:
-#      - MOODLE_DATABASE_USER=bn_moodle
-#      - MOODLE_DATABASE_NAME=bitnami_moodle
-#      - ALLOW_EMPTY_PASSWORD=yes
-#    ports:
-#          - target: 443
-#            published: 443
-#            protocol: tcp
-#            mode: host
-#    volumes:
-#            - '/tmp/moodle/persistence:/bitnami'
-#    depends_on:
-#      - mariadb
 
   tmper:
-    image: gblin/tmper    
+    image: gblin/tmpercertbot    
     container_name: tmper
     privileged: true
-    ports:
-      - target: 1443
-        published: ${TMPER_PORT}
-        protocol: tcp
-        mode: host
+    #ports:
+    #  - target: 1443
+    #    published: ${TMPER_PORT}
+    #    protocol: tcp
+    #    mode: host
     volumes:
-      - type: bind
-        source : /vplbdx/ssl
-        target : /vplbdx/ssl
-        read_only : true
+            # - type: bind
+            #source : /vplbdx/ssl
+            #target : /vplbdx/ssl
+            #read_only : true
       - /vplbdx/tmper_data:/permanent
     deploy:
       placement:
         constraints:
           - node.role == manager
-#  sharelatexproxy:
-#    image :  gblin/sharelatexproxy      
-#    container_name: SLproxy
-#    ports:
-#      - target: 443
-#        published: ${SLPROXY_PORT}
-#        protocol: tcp
-#        mode: host
-#    volumes:
-#      - type: bind
-#        source : /vplbdx/ssl
-#        target : /vplbdx/ssl
-#        read_only : true
-#    deploy:
-#      placement:
-#        constraints:
-#          - node.role == manager
-#  sharelatex:
-#    image: gblin/sharelatex    
-#    container_name: sharelatex
-#    depends_on:
-#      - mongo
-#      - redis
-#    privileged: true
-#    links:
-#      - mongo
-#      - redis
-#    volumes:
-#      - /vplbdx/sharelatex_data:/var/lib/sharelatex
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    environment:
-#      SHARELATEX_MONGO_URL: mongodb://mongo/sharelatex
-#      SHARELATEX_REDIS_HOST: redis
-#      SHARELATEX_APP_NAME: UF Info ShareLaTeX
-#      SHARELATEX_SITE_URL: https://services.emi.u-bordeaux.fr/sharelatex
-#      SHARELATEX_BEHIND_PROXY: 1
-#    deploy:
-#      placement:
-#        constraints:
-#          - node.role == manager
   mongo:
     restart: always
     image: mongo
