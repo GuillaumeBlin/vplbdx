@@ -133,7 +133,7 @@ async def push_info_to_container(root):
          "privileged":True, "binds":['/dev/kvm:/dev/kvm','/dev/net/tun:/dev/net/tun']}
     logging.debug(f"[HC] > {hc}")
     container_config = clientAPI.create_host_config(**hc)
-    p = clientAPI.create_container(localdockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname=server_config["SERVER_NAME"], working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
+    p = clientAPI.create_container(localdockerimage, user=dockeruser, command="sleep 600", environment={"LC_ALL": "C.UTF-8", "LANG": "C.UTF-8", "HOME": "/vplbdx"}, host_config=container_config, tty=False, stdin_open=True, ports=[5900], detach=True, hostname="vpl."+server_config["SERVER_NAME"], working_dir="/vplbdx", volumes=['/dev/kvm', '/dev/net/tun'])
     clientAPI.connect_container_to_network(p, "vplpynet")
     clientAPI.disconnect_container_from_network(p, "bridge")
     clientAPI.start(p)
