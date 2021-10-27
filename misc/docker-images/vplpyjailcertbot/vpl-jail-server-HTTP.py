@@ -232,7 +232,7 @@ else:
 
 set_server_port()
 HOSTNAME = os.environ.get("HOSTNAME")
-docker_ip = docker.from_env().containers.get(HOSTNAME[:12]).attrs["NetworkSettings"]["Networks"]["vplpynet"]["IPAddress"]
+docker_ip = docker.from_env().containers.get(HOSTNAME[:16]).attrs["NetworkSettings"]["Networks"]["vplpynet"]["IPAddress"]
 app = web.Application(client_max_size=server_config["MAXBODYSIZE"])
 app.add_routes(routes)
 logging.debug(str(docker_ip))

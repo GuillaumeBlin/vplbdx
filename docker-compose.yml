@@ -49,6 +49,8 @@ services:
     image: gblin/tmpercertbot    
     container_name: tmper
     privileged: true
+    environment:
+      - SERVER_NAME=${SERVER_NAME}
     volumes:
       - /vplbdx/tmper_data:/permanent
     deploy:
