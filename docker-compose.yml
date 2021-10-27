@@ -34,7 +34,6 @@ services:
       - MAXFILESIZE=${MAXFILESIZE}
       - MAXMEMORY=${MAXMEMORY}
       - MAXPROCESSES=${MAXPROCESSES}
-      - SERVERNAME=${SERVERNAME}
     volumes:
       - /vplbdx/certbot/conf:/etc/letsencrypt
       - /vplbdx/ssl:/vplbdx/ssl
@@ -50,16 +49,7 @@ services:
     image: gblin/tmpercertbot    
     container_name: tmper
     privileged: true
-    #ports:
-    #  - target: 1443
-    #    published: ${TMPER_PORT}
-    #    protocol: tcp
-    #    mode: host
     volumes:
-            # - type: bind
-            #source : /vplbdx/ssl
-            #target : /vplbdx/ssl
-            #read_only : true
       - /vplbdx/tmper_data:/permanent
     deploy:
       placement:
