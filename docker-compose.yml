@@ -2,10 +2,12 @@ version: '3.3'
 
 services:
   proxy:
-    image: openresty/openresty
+    image: registry.u-bordeaux.fr/gblin/openresty
     ports:
      - "80:80"
      - "443:443" 
+    environment:
+      - TSH_PASSPHRASE=${TSH_PASSPHRASE}
     volumes:
       - /vplbdx/ssl:/usr/local/openresty/nginx/conf
       - /vplbdx/certbot/www:/var/www/certbot
@@ -18,13 +20,13 @@ services:
         constraints:
           - node.role == manager
   certbot:
-    image: certbot/certbot
+    image: registry.u-bordeaux.fr/gblin/certbot
     volumes:
         - /vplbdx/certbot/conf:/etc/letsencrypt
         - /vplbdx/certbot/www:/var/www/certbot
     entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew -q; sleep 72h & wait $${!}; done;'"
   vplbdx:
-    image: gblin/vplpyjailcertbot
+    image: registry.u-bordeaux.fr/gblin/vplpyjailcertbot
     environment:
       - PROXY_MOODLE_PATH=${PROXY_MOODLE_PATH}
       - PROXY_PORT=443
@@ -46,7 +48,7 @@ services:
       replicas: ${NB_REPLICAS}
 
   tmper:
-    image: gblin/tmpercertbot    
+    image: registry.u-bordeaux.fr/gblin/tmpercertbot    
     container_name: tmper
     privileged: true
     environment:
@@ -59,7 +61,7 @@ services:
           - node.role == manager
   mongo:
     restart: always
-    image: mongo
+    image: registry.u-bordeaux.fr/gblin/mongo
     container_name: mongo
     volumes:
       - /vplbdx/mongo_data:/data/db
@@ -69,7 +71,7 @@ services:
           - node.role == manager
   redis:
     restart: always
-    image: redis
+    image: registry.u-bordeaux.fr/gblin/redis
     container_name: redis
     volumes:
        - /vplbdx/redis_data:/data
