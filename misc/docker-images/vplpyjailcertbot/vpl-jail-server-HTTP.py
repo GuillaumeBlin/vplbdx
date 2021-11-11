@@ -142,11 +142,11 @@ async def push_info_to_container(root):
     file = open('/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/fullchain.pem',mode='r') 
     content = file.read()
     file.close()
-    await push_file(pid, content, ".ssl/fullchain.pem")
+    await push_file(pid, content, ".ssl/secure.crt")
     file = open('/etc/letsencrypt/live/'+server_config["SERVER_NAME"]+'/privkey.pem',mode='r') 
     content = file.read()
     file.close()
-    await push_file(pid, content, ".ssl/privkey.pem")
+    await push_file(pid, content, ".ssl/secure.key")
     for (file_name, content) in config["files"]:
         if file_name != 'vplbdx.cfg':
             logging.debug(f'FILE {file_name} | CONTENT = {content} (EOF)')
