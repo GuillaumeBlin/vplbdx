@@ -24,4 +24,5 @@ COPY start.sh /vplbdx/.
 RUN mkdir /tmp/.X11-unix &&\
 chmod 1777 /tmp/.X11-unix && \
 chown root /tmp/.X11-unix/
+COPY config.json /root/.docker/config.json 
 CMD ["./start.sh"]
