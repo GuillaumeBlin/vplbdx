@@ -1,0 +1,12 @@
+#!/bin/bash
+export TERM=xterm
+unset SESSION_MANAGER
+xrdb
+xsetroot -solid MidnightBlue 
+export XKL_XMODMAP_DISABLE=1
+[ -x vncconfig ] && vncconfig -iconic 2>/dev/null &
+fluxbox &
+export DISPLAY=:1
+display -window root /vplbdx/logo.jpg
+chmod +x /vplbdx/vpl_wexecution
+/vplbdx/vpl_wexecution &> .std_output
