@@ -39,6 +39,12 @@ logging_level = logging.ERROR
 
 clientAPI = docker.APIClient()
 
+def img_exists(imgname):
+    imgs=[]
+    for x in clientAPI.images():
+        if x['RepoTags'] :
+            imgs.append(x['RepoTags'][0].split(":")[0])
+    return imgname in imgs
 
 def set_server_port():
     if len(sys.argv) > 3:
@@ -105,24 +111,25 @@ async def push_info_to_container(root):
             dockerforcepull=True
     logging.debug(f"DOCKER IMAGE : {dockerimage}")    
     logging.debug(f"DOCKER USER : {dockeruser}")   
-    localdockerimage="localhost:"+str(os.environ.get("REGISTRY_PORT"))+"/"+dockerimage
+    localdockerimage=dockerimage#"localhost:"+str(os.environ.get("REGISTRY_PORT"))+"/"+dockerimage
     if dockerforcepull:
         try:
             clientAPI.pull(dockerimage)
-            clientAPI.tag(dockerimage,localdockerimage)
-            clientAPI.push(localdockerimage)
+            #clientAPI.tag(dockerimage,localdockerimage)
+            #clientAPI.push(localdockerimage)
         except Exception as e2:
             logging.error(dockerimage+" could not been found on docker hub")
             return ("","")
     else:
-        try:  
-            clientAPI.pull(localdockerimage)
-        except Exception as e:
-            try:
-                clientAPI.pull(dockerimage)
-                clientAPI.tag(dockerimage,localdockerimage)
-                clientAPI.push(localdockerimage)
-            except Exception as e2:
+        if not img_exists(localdockerimage):
+            try:  
+                clientAPI.pull(localdockerimage)
+            except Exception as e:
+                #try:
+                #    clientAPI.pull(dockerimage)
+                    #clientAPI.tag(dockerimage,localdockerimage)
+                    #clientAPI.push(localdockerimage)
+                #except Exception as e2:
                 logging.error(dockerimage+" could not been found on docker hub")
                 return ("","")
     # recuperation de DOCKER
