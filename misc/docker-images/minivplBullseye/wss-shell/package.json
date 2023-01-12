@@ -1,0 +1,18 @@
+{
+  "name": "wss-shell",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "Guillaume Blin",
+  "license": "MIT",
+  "dependencies": {
+  "node-pty": "^0.10.1",
+    "os-service": "^2.2.0",
+    "ws": "^8.3.0",
+    "yargs": "^17.3.0"
+   },
+  "bin": {
+    "wss-shell": "./index.js"
+  }
+}
