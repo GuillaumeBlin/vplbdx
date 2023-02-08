@@ -28,7 +28,7 @@ from aiohttp import web
 from ftfy import fix_text
 from multidict import MultiDictProxy
 
-from rpc import (availableResponse, crypt, get_members_and_values,
+from rpc import (availableResponse, stopResponse, crypt, get_members_and_values,
                  get_specific_value, getResultResponse, requestResponse)
 
 server_config = {"SERVER_NAME":str(os.environ.get("SERVER_NAME")),"ws_server_port": str(os.environ.get("PROXY_PORT"))+os.environ.get("PROXY_MOODLE_PATH"), "server_port": 8092, "MAXBODYSIZE" : os.environ.get("MAXBODYSIZE"), "MAXTIME" : os.environ.get("MAXTIME"), "MAXFILESIZE": os.environ.get("MAXFILESIZE"), "MAXMEMORY": os.environ.get("MAXMEMORY"), "MAXPROCESSES": os.environ.get("MAXPROCESSES")}
@@ -171,6 +171,16 @@ async def handle_post(request):
     root = ET.fromstring(post_data)
     method_name = root.find("methodName").text
     logging.debug("METHOD = " + method_name + "\n")
+    if method_name == "stop":
+        xml = stopResponse()
+        logging.debug("----------[AVAILABLE XML]----------\n")
+        logging.debug(xml)
+        return web.Response(text=xml, content_type='text/xml', headers={
+                            "Access-Control-Allow-Headers": "x-requested-with, Content-Type, origin, authorization, accept, client-security-token",
+                            "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PUT",
+                            "Access-Control-Allow-Origin": "*",
+                            "Access-Control-Max-Age": "1000"
+                            })
     if method_name == "available":
         await asyncio.sleep(.1)
         xml = availableResponse("ready", 42, server_config["MAXTIME"], server_config["MAXFILESIZE"],server_config["MAXMEMORY"], server_config["MAXPROCESSES"], server_config["ws_server_port"])
@@ -205,10 +215,10 @@ async def handle_post(request):
         if admin_ticket != None:          
             admin_ticket = admin_ticket.split('/')[0]
             pid = crypt(admin_ticket, "ADMINTICKET", True)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'mkdir -p .vpl_res ;touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
             compile_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_exec.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'mkdir -p .vpl_res ; touch .vpl_res/.vpl_exec.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
             execution_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
             clientAPI.stop(pid, 0)
