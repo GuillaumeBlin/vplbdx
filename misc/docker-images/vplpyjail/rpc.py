@@ -42,6 +42,10 @@ def responseStrMember(name, value):
 def responseIntMember(name, value):
     return "<member><name>"+name+"</name>\n<value><int>"+str(value)+"</int></value>\n</member>\n"
 
+def stopResponse():
+    response = ""
+    response += responseIntMember("stop", 1)
+    return responseWraper(response)
 
 def availableResponse(status, load, maxtime, maxfilesize, maxmemory, maxprocesses, secureport):
     response = ""
