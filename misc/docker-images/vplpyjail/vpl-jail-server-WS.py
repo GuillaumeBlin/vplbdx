@@ -58,7 +58,7 @@ class ClientHandler():
             pass
 
     async def docker_eval(self):
-        self.last_exec = self.clientAPI.exec_create(self.pid, "/bin/bash -c 'touch .vpl_res/.vpl_exec.out; if [ -f vpl_execution ]; then ./vpl_execution &> .vpl_res/.vpl_exec.out; fi'", workdir='/vplbdx')
+        self.last_exec = self.clientAPI.exec_create(self.pid, "/bin/bash -c 'mkdir -p .vpl_res ; touch .vpl_res/.vpl_exec.out; if [ -f vpl_execution ]; then ./vpl_execution &> .vpl_res/.vpl_exec.out; fi'", workdir='/vplbdx')
         self.clientAPI.exec_start(self.last_exec["Id"], detach=True)
         await asyncio.sleep(.05)
 
