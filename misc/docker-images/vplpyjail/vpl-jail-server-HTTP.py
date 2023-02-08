@@ -182,8 +182,7 @@ async def handle_post(request):
         logging.debug("----------[AVAILABLE XML]----------\n")
         logging.debug(xml)
         return web.Response(text=xml, content_type='text/xml', headers={
-                            "Access-Control-Allow-Headers": "x-requested-with, Content-Type, origin, authorization
-, accept, client-security-token",
+                            "Access-Control-Allow-Headers": "x-requested-with, Content-Type, origin, authorization, accept, client-security-token",
                             "Access-Control-Allow-Methods": "POST, GET, OPTIONS, DELETE, PUT",
                             "Access-Control-Allow-Origin": "*",
                             "Access-Control-Max-Age": "1000"
@@ -222,10 +221,10 @@ async def handle_post(request):
         if admin_ticket != None:          
             admin_ticket = admin_ticket.split('/')[0]
             pid = crypt(admin_ticket, "ADMINTICKET", True)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'mkdir -p .vpl_res ; touch .vpl_res/.vpl_compile.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_compile.out'", workdir='/vplbdx', stdin=True, tty=True)
             compile_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
-            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'touch .vpl_res/.vpl_exec.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
+            last_exec = clientAPI.exec_create(pid, "/bin/bash -c 'mkdir -p .vpl_res ; touch .vpl_res/.vpl_exec.out; iconv -f utf-8 -t utf-8//IGNORE -c .vpl_res/.vpl_exec.out'", workdir='/vplbdx', stdin=True, tty=True)
             execution_out = clientAPI.exec_start(last_exec["Id"])
             await asyncio.sleep(.1)
             clientAPI.stop(pid, 0)
