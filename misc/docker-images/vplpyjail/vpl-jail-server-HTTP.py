@@ -86,7 +86,7 @@ async def push_info_to_container(root):
             last_exec = clientAPI.exec_create(pid, cmd, workdir="/vplbdx")
             clientAPI.exec_start(last_exec["Id"])
         if  file_name=="vpl_environment.sh":
-            ct="export VPL_VNCPASSWD='"+crypt(pid[:12], "EXECUTETICKET")[:8]+"'"
+            ct="export VPL_VNCPASSWD='"+crypt(pid[:12], "EXECUTETICKET")[:8]+"'\n"
             data = encodebytes(f"{ct}".encode("utf8")).decode("utf8")
             data = data.replace("\n", "")
             cmd = "bash -c 'echo \"" + data + "\" | base64 -d >> " + file_name + "'"
